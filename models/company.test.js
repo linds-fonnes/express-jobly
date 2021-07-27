@@ -206,3 +206,86 @@ describe("remove", function () {
     }
   });
 });
+
+/**************************** filter */
+describe("filter companies", function () {
+
+  test("filters by name", async function () {
+    const res= await Company.filterBy({ name: "1" })
+    expect(res).toEqual([{
+      handle: "c1",
+      name: "C1",
+      description: "Desc1",
+      numEmployees: 1,
+      logoUrl: 'http://c1.img'
+    }])
+  })
+
+  test("filters by min employees", async function () {
+    const res= await Company.filterBy({ minEmployees: "2" })
+    expect(res).toEqual([{
+      handle: "c2",
+      name: "C2",
+      description: "Desc2",
+      numEmployees: 2,
+      logoUrl: 'http://c2.img'
+    },
+    {
+     handle: "c3",
+     name: "C3",
+     description: "Desc3",
+     numEmployees: 3,
+     logoUrl: "http://c3.img" 
+    }
+  ])
+  })
+
+  test("filters by max employees", async function () {
+    const res= await Company.filterBy({ maxEmployees: "3" })
+    expect(res).toEqual([{
+      handle: "c1",
+      name: "C1",
+      description: "Desc1",
+      numEmployees: 1,
+      logoUrl: 'http://c1.img'
+    },
+    {
+      handle: "c2",
+      name: "C2",
+      description: "Desc2",
+      numEmployees: 2,
+      logoUrl: "http://c2.img" 
+    },
+    {
+      handle: "c3",
+      name: "C3",
+      description: "Desc3",
+      numEmployees: 3,
+      logoUrl: "http://c3.img" 
+    }
+  ])
+  })
+
+  test("filters using multiple filters", async function() {
+    const res = await Company.filterBy({name: "c", minEmployees: 2, maxEmployees: 3});
+    expect(res).toEqual([{
+      handle: "c2",
+      name: "C2",
+      description: "Desc2",
+      numEmployees: 2,
+      logoUrl: "http://c2.img" 
+    },
+    {
+      handle: "c3",
+      name: "C3",
+      description: "Desc3",
+      numEmployees: 3,
+      logoUrl: "http://c3.img" 
+    }
+  ])
+  })
+
+  test("throws error if min employees > max employees", async function (){
+    expect(async () => await Company.filterBy({minEmployees:3, maxEmployees:1}).toThrow(BadRequestError));
+  })
+})

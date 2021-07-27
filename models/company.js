@@ -44,6 +44,58 @@ class Company {
     return company;
   }
 
+  /* 
+  Filter all companies by name, minEmployees, and/or maxEmployees
+  Returns [{handle, name, description, numEmployees, logoUrl}, ...]
+  */
+
+  static async filterBy(filters){
+    // creates initial query to build off of for each filter in query
+    let query = `
+    SELECT handle,
+    name,
+    description,
+    num_employees AS "numEmployees",
+    logo_url AS "logoUrl"
+    FROM companies
+    
+    `;
+    const { name, minEmployees, maxEmployees } = filters;
+    const whereClause = [];
+    const values = [];
+
+    
+    if (minEmployees > maxEmployees){
+      throw new BadRequestError("Max employees must be greater than min employees")
+    }
+
+    //checks if the following filters were in query, if so: adds values to array and adds the where clause to an array
+    if(name) {
+      values.push(`%${name}%`)
+      whereClause.push(`name ILIKE $${values.length}`)
+    }
+
+    if(minEmployees){
+      values.push(minEmployees)
+      whereClause.push(`num_employees >= $${values.length}`)
+    }
+
+    if(maxEmployees){
+      values.push(maxEmployees);
+      whereClause.push(`num_employees <= $${values.length}`)
+    }
+
+    //joins together the where clause with AND in between each & orders by name
+    if(whereClause.length > 0){
+      query += " WHERE " + whereClause.join(" AND ")
+    }
+    
+    query += " ORDER BY name"
+    //send off the finalized query and return the result
+    const companiesRes = await db.query(query, values)
+    return companiesRes.rows
+  }
+
   /** Find all companies.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
