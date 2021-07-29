@@ -38,7 +38,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
     return next(err);
   }
 });
-
+ 
 /** GET /  =>
  *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
  *
@@ -81,7 +81,7 @@ router.get("/:handle", async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
-});
+}); 
 
 /** PATCH /[handle] { fld1, fld2, ... } => { company }
  *
