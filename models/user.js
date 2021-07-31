@@ -134,9 +134,16 @@ class User {
            WHERE username = $1`,
         [username],
     );
+    const jobRes = await db.query(
+      `SELECT username,
+      job_id
+      FROM applications
+      WHERE username = $1
+      `, [username]
+    )
 
     const user = userRes.rows[0];
-
+    user.jobs = jobRes.rows
     if (!user) throw new NotFoundError(`No user: ${username}`);
 
     return user;
@@ -203,6 +210,42 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+
+
+  /** Allows a user to apply for a job 
+   * accepts username of user applying for job & id of job 
+  */
+
+  static async apply(username, job){
+
+    const usernameCheck = await db.query(`
+    SELECT username
+    FROM users
+    WHERE username = $1
+    `, [username])
+
+    const userRes = usernameCheck.rows[0]
+    if (!userRes) throw new NotFoundError(`No user: ${username}`)
+
+    const jobCheck = await db.query(`
+    SELECT id
+    FROM jobs
+    WHERE id = $1
+    `, [job])
+
+    const jobRes = jobCheck.rows[0]
+    if (!jobRes) throw new NotFoundError(`No job: ${job}`)
+
+    await db.query(
+      `INSERT INTO applications
+      (username,
+      job_id) 
+      VALUES ($1, $2)
+      RETURNING username, job_id
+      `, [username, job]
+    );
+    
   }
 }
 

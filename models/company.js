@@ -143,9 +143,9 @@ class Company {
     );    
 
     const company = companyRes.rows[0];
-    company.jobs = jobsRes.rows
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+    company.jobs = jobsRes.rows
 
     return company;
   }
