@@ -143,9 +143,9 @@ class User {
     )
 
     const user = userRes.rows[0];
-    user.jobs = jobRes.rows
     if (!user) throw new NotFoundError(`No user: ${username}`);
-
+    user.jobs = jobRes.rows
+  
     return user;
   }
 
